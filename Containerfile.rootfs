@@ -44,7 +44,6 @@ RUN apt install -y \
 RUN apt install -y \
         bash-completion \
         build-essential \
-        btrfs-progs \
         cmake \
         curl \
         dnsutils \
@@ -58,6 +57,7 @@ RUN apt install -y \
         net-tools \
         netplan.io \
         pciutils \
+        picocom \
         python3-dev \
         ssh \
         sudo \
@@ -66,9 +66,20 @@ RUN apt install -y \
         usbutils \
         neovim \
         wpasupplicant \
-        parted \
         gdisk \
         e2fsprogs
+
+# 32-bit ARM (armhf)
+RUN dpkg --add-architecture armhf && \
+    apt update
+
+RUN apt install -y \
+    libc6:armhf \
+    libstdc++6:armhf \
+    libatomic1:armhf \
+    gcc:armhf \
+    g++:armhf \
+    make:armhf
 
 # Resize the rootfs
 COPY scripts/resizerootfs.sh /usr/local/bin
@@ -81,12 +92,19 @@ RUN locale-gen en_US.UTF-8
 # Network configuration
 COPY config/netcfg.yaml /etc/netplan/netcfg.yaml
 
+# Node.js arm7l (armhf)
+ARG NODE=https://nodejs.org/dist/v20.6.0/node-v20.6.0-linux-armv7l.tar.xz
+RUN wget -qO- $NODE | tar -Jxpf - -C /usr/local/lib && \
+    ln -s /usr/local/lib/node-v20.6.0-linux-armv7l/bin/node /usr/local/bin/node && \
+    ln -s /usr/local/lib/node-v20.6.0-linux-armv7l/bin/npm /usr/local/bin/npm
+
 # New user
 # username: jetson
 # password: jetson
 RUN useradd \
         --create-home \
-        -G sudo \
+        -G sudo,dialout \
         -p $(openssl passwd -6 jetson) \
         -s /bin/bash \
-        jetson
+        jetson \
+        && chown -R jetson:jetson /home/jetson

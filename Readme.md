@@ -12,15 +12,39 @@ What would you like to have as tools and setup for the minimalist image ?
 
 Let me know by opening an issue.
 
-## Instructions here:
+## Dependencies:
+* Ubuntu host
+* podman
+* just
+* jq
+* qemu-user-static
 
-https://pythops.com/post/create-your-own-image-for-jetson-nano-board.html
+## Instructions:
+
+**Building image**
+```
+$ git clone https://github.com/pythops/jetson-nano-image
+$ cd jetson-nano-image
+
+$ just build-jetson-rootfs
+$ just build-jetson-image jetson-nano 300
+```
+
+**Flashing to SD card**
+```
+$ sudo just flash-jetson-image <jetson image file> <sdcard device>
+```
+
+**Install NVIDIA libs (on board boot)**
+```
+$ sudo apt install -y cuda-toolkit-10-2 libcudnn8 libcudnn8-dev
+```
 
 ## Spec:
 
-**Ubuntu release**: 20.04
+**Ubuntu release**: 20.04 focal
 
-**BSP**: 32.7.3
+**BSP**: 32.7.4
 
 ## Supported boards:
 
